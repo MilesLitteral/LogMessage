@@ -1,6 +1,6 @@
-{-# LANGUAGE RecordWildCards, ScopedTypeVariables, FlexibleContexts #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards, ScopedTypeVariables, FlexibleContexts, MultiParamTypeClasses, UndecidableInstances #-}
 
-module LogMessage (
+module HRayLib3d.Utils.LogMessage (
     LogLevel   (..), 
     LogPrefix  (..),
     LogMessage (..), 
@@ -10,10 +10,10 @@ module LogMessage (
     logMessage,
     logMessageBar,
     logMessageLines,
-    logOrderedMessage,
     exceptionMessage,
     eventMessage,
     errorMessage
+    -- logOrderedMessage,
   ) where 
 
   import Data.List
@@ -68,7 +68,7 @@ module LogMessage (
   logSymbol :: IsString p => LogLevel -> p
   logSymbol sym =
     case sym of 
-        LOG_INFO    -> "📘"  -- ℹ️
+        LOG_INFO    -> "🈳"  -- ℹ️
         LOG_MESSAGE -> "💬" 
         LOG_ZONE    -> "🈯"
         LOG_DEBUG   -> "🚧"
@@ -78,9 +78,9 @@ module LogMessage (
   logPrefix :: LogLevel -> LogPrefix -> [Char]
   logPrefix level ord =
     case ord of
-        LOG_HEAD   -> "╔(" ++ log_symbol level ++ ")"
-        LOG_BODY   -> "╠(" ++ log_symbol level ++ ")" 
-        LOG_TAIL   -> "╚(" ++ log_symbol level ++ ")"
+        LOG_HEAD   -> "╔(" ++ logSymbol level ++ ")"
+        LOG_BODY   -> "╠(" ++ logSymbol level ++ ")" 
+        LOG_TAIL   -> "╚(" ++ logSymbol level ++ ")"
         _          -> error "\x1b[31m ✖ INVALID LOG PREFIX ✖ \033[0m"
 
   -- | Util Functions for managing message formatting
@@ -96,8 +96,8 @@ module LogMessage (
   -- | A chained message brick, pass anything to it, and manage it's order outside of Mani-Log
   orderedMessage :: MonadIO m => LogMessage -> m ()
   orderedMessage message@LogMessage{..} = do
-    let prefix  = log_prefix level order
-        msg     = log_color  level (prefix ++ " " ++ body)
+    let prefix  = logPrefix level order
+        msg     = logColor  level (prefix ++ " " ++ body)
     liftIO $ putStrLn msg
 
   -- | An unchained message; Be careful this may break formatting if put in a list with an orderedMessage.
